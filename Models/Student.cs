@@ -19,9 +19,9 @@ public partial class Student
 
     public string Gender { get; set; } = null!;
 
-    public int AccountId { get; set; }
+    public int? AccountId { get; set; }
 
-    public virtual UsersAccount Account { get; set; } = null!;
+    public virtual UsersAccount? Account { get; set; } = null!;
 
     public virtual StudentsAddress Address { get; set; } = null!;
 
