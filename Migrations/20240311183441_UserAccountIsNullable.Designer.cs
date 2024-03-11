@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using University_BN.Models;
 
@@ -11,9 +12,11 @@ using University_BN.Models;
 namespace University_BN.Migrations
 {
     [DbContext(typeof(UniversityContext))]
-    partial class UniversityContextModelSnapshot : ModelSnapshot
+    [Migration("20240311183441_UserAccountIsNullable")]
+    partial class UserAccountIsNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

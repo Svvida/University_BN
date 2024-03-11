@@ -44,9 +44,65 @@ if (app.Environment.IsDevelopment())
 app.MapGet("/students", async (UniversityContext context) =>
 {
     var studentDTOs = await context.Students
-    .Select(s => new StudentDTO(s.Name, s.Surname, s.DateOfBirth, s.Gender))
+    .Select(s => new StudentDTO
+    {
+        Name =s.Name,
+        Surname = s.Surname,
+        DateOfBirth = s.DateOfBirth,
+        Gender = s.Gender
+    })
     .ToListAsync();
     return Results.Ok(studentDTOs);
+});
+
+app.MapPost("/students", async (UniversityContext context, StudentRegistrationModel registrationModel) =>
+{
+    using var transaction = await context.Database.BeginTransactionAsync();
+    try
+    {
+        var birthDate = DateOnly.ParseExact(registrationModel.BirthDate, "yyyy-MM-dd");
+
+        var address = new StudentsAddress
+        {
+            Country = registrationModel.Country,
+            City = registrationModel.City,
+            PostalCode = registrationModel.PostalCode,
+            Street = registrationModel.Street,
+            BuildingNumber = registrationModel.BuildingNumber,
+            ApartmentNumber = registrationModel.ApartmentNumber
+        };
+        context.StudentsAddresses.Add(address);
+        await context.SaveChangesAsync();
+
+        var student = new Student
+        {
+            Name = registrationModel.Name,
+            Surname = registrationModel.Surname,
+            DateOfBirth = birthDate,
+            Gender = registrationModel.Gender,
+            Pesel = registrationModel.Pesel,
+            AddressId = address.Id,
+        };
+        context.Students.Add(student);
+        await context.SaveChangesAsync();
+
+        await transaction.CommitAsync();
+
+        var studentDto = new StudentDTO
+        {
+            Name = student.Name,
+            Surname = student.Surname,
+            DateOfBirth = birthDate,
+            Gender = registrationModel.Gender,
+        };
+
+        return Results.Ok(studentDto);
+    }
+    catch (Exception ex)
+    {
+        await transaction.RollbackAsync();
+        return Results.Problem(detail: ex.Message, statusCode: 500);
+    }
 });
 
 
